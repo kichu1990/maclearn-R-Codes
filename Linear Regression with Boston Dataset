@@ -1,0 +1,80 @@
+setwd("C:/Users/prajs1/Documents/R/Material")
+library(MASS)
+data("Boston")
+str(Boston)
+View(Boston)
+summary(Boston)
+
+##Split the data into Train and Test##
+library(caTools)
+set.seed(2)
+split<-sample.split(Boston$medv, SplitRatio = 0.70)
+train  <- subset(Boston, split == 'TRUE')
+test <- subset(Boston, split == 'FALSE')
+View(train)
+View(test)
+
+##Plot a Correlation Plot to Identify the Correlation##
+x<-cor(train)
+library(corrplot)
+corrplot(x, type = 'lower', method = 'number')
+
+## Identify the Important Variables Using Random Forest##
+library(randomForest)
+bestmtry = tuneRF(train, train$medv, stepFactor = 1.2, improve = 0.01, trace = T , plot = T)
+rf<-randomForest(medv~., data = train, ntree=500,nodesize=3,mtry=4)
+print(rf)
+varImpPlot(rf)
+
+##Identify and eliminate Multicollinearity ##
+library(car)
+mod<- lm(medv~., data = train)
+vif(mod)
+mod<- lm(medv~. - tax, data = train)
+vif(mod)
+
+## Different Iteration of the Model to get a good R2 ##
+model1<- lm(medv~ crim + nox  + rm + dis  + ptratio + lstat, data = train)
+summary(model1)
+
+model2<- lm(medv~ crim + zn  + nox  + rm + dis  + ptratio + lstat, data = train)
+summary(model2)
+
+model3<- lm(medv~ crim + chas + zn + nox  + rm + dis  + ptratio + lstat, data = train)
+summary(model3)
+
+model4<- lm(medv~ crim + rad + zn + nox  + rm + dis  + ptratio + lstat, data = train)
+summary(model4)
+
+model5<- lm(medv~ crim + zn + black + rad + nox  + rm + dis  + ptratio + lstat, data = train)
+summary(model5)
+
+## Verify the created Model has a Normal Distribution of the Errors ##
+hist(model5$residuals)
+plot(model)
+
+#PREDICTIONS on Train and Test data##
+pred_tr<- predict(model5,train)
+pred_te<- predict(model5,test)
+
+##Error Calculations##
+mape<- (sum(abs(train$medv - pred_tr)/train$medv))/length(train$medv)*100
+mape
+
+mape1<- (sum(abs(test$medv - pred_te)/test$medv))/length(test$medv)*100
+mape1
+
+#To Plot a graph of actual Value and the Predicted Value#
+plot(test$medv, type = "l", col = "green")
+lines(aprediction,type = "l", col = "blue")
+
+pred_tr=predict(linear, train)
+plot(train$medv, type = "l",lty = 1.5,col = "green")
+lines(pred_tr,type = "l",col = "blue")
+
+pred_te=predict(linear, test)
+plot(test$medv, type = "l",lty = 1.5,col = "green")
+lines(pred_te,type = "l",col = "blue")
+
+## Pair Plot ##
+pairs(Boston[1:4], main = "BOSTON DATA", pch = 21, bg = c("red", "green3", "blue")[unclass(Boston$medv)])
