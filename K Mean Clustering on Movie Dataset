@@ -1,0 +1,58 @@
+setwd("E:/R & Python Documents/R Machine Learning/Models Built")
+
+# K Mean Clustering on Movie Dataset
+mv<-read.table("data.txt",header = F, sep = "|",quote = "\"")
+colnames(mv)<- c("ID","Title","ReleaseDate","VideoReleaseDate","IMDB","Unknown",
+                 "Action","Adventure","Animation","Children's","Comedy","Crime",
+                 "Documentary","Drama","Fantasy","FlimNoir","Horror","Musical",
+                 "Mystery","Romance","Scifi","Thriller","War","Western")
+View(mv)
+dim(mv)
+structure(mv)
+mov=mv[-(1:6)]
+View(mov)
+kmc1<-kmeans(mov,18)
+length(unique(mv$Title))
+mo<-sort(table(mv$Title), decreasing = T)# to identify the duplicate records in the table
+View(mo)
+mv[grep("^Money Talks",(mv$Title)),]# to identify the duplicate records in the table
+mv[grep("^Hugo Pool",(mv$Title)),]
+mv[grep("^Ice Storm",(mv$Title)),]
+mv[grep("^Ulee's Gold",(mv$Title)),]
+library(dplyr)
+View(mv)
+
+mv$ID=NULL
+mv$ReleaseDate=NULL
+mv$VideoReleaseDate=NULL
+mv$IMDB=NULL
+mv<-unique(mv)
+View(mv)
+
+##kmc1<-kmeans(mv[,-1:6],18)
+kmv<-kmeans(mv[,-1],7)# dividing the 19 Generas into 7 Clusters
+names(kmv)
+kmv$centers#average value
+kmv$totss#total sum of squares
+kmv$withinss#within each cluster sum of square
+kmv$betweenss# totalsum of squares between the cluster
+kmv$cluster
+mv$cluster<-kmv$cluster
+
+tapply(mv$Horror,mv$cluster,mean)*100# to check what % of horror movies is there in the cluster 
+tapply(mv$Action,mv$cluster,mean)*100
+tapply(mv$Adventure,mv$cluster,mean)*100
+tapply(mv$`Children's`,mv$cluster,mean)*100
+tapply(mv$Comedy,mv$cluster,mean)*100
+tapply(mv$Crime,mv$cluster,mean)*100
+tapply(mv$Animation,mv$cluster,mean)*100
+write.csv(mv,"mv_cluster.csv",row.names = F)
+
+d[x]<-a$tot.withiness
+
+#x is the subset
+mov_mat = data.matrix(mov)
+
+wss = (nrow(mov_mat)-1)*sum(apply(mov_mat,2,var))
+for (i in 2:15) wss[i]= sum(kmeans(mov_mat,centers = i)$withinss)
+plot(1:15 ,wss,type = "b", xlab = "Number of Clusters", ylab = "Within Sum od Squares")
