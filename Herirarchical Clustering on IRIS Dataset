@@ -1,0 +1,24 @@
+# Herirarchical Clustering on IRIS Dataset 
+data(iris)
+View(iris)
+# To Calculate the distance between the data points
+distance=dist(iris[,1:4], method = "euclidean")
+h.fit=hclust(distance, method = "ward.D")#ward.d tries minimize the varience of the cluster 
+plot(h.fit)
+
+# To form the Clusters
+iris.cluster<-cutree(h.fit,3)
+iris.cluster
+table(iris$Species,iris.cluster)
+
+# To plot the Clusters
+clusplot(iris[,-1],iris.cluster,main="2D representation of the Cluster Solution",color=T,shade=T,labels=2,lines=0)
+
+# To know the Percentage of Movies in each Cluster
+tapply(iris$Sepal.Length,iris$cluster,mean)*100
+tapply(iris$Sepal.Width,iris$cluster,mean)*100
+tapply(iris$Petal.Length,iris$cluster,mean)*100
+tapply(iris$Petal.Width,iris$cluster,mean)*100
+
+# Add the Cluster column to the dataset
+iris$cluster<-iris.cluster
