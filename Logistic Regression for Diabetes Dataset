@@ -1,0 +1,40 @@
+## Logistic Regression for Diabetes Dataset
+str(diabetes)
+dia=diabetes
+dia$type=as.character(dia$type)
+dia$type=as.factor(dia$type)
+str(dia)
+summary(dia)
+View(dia)
+
+library(caTools)
+set.seed(101)
+sample = sample.split(dia$type, SplitRatio = .70)
+train = subset(dia, sample == TRUE)
+test  = subset(dia, sample == FALSE)
+
+library(randomForest)
+bestmtry=tuneRF(dia, dia$type, stepFactor = 1.2, improve = 0.01, trace = T, plot = T)
+rf=randomForest(type~., data=dia, ntree = 500, nodesize = 3, mtry = 3 )
+rf
+varImpPlot(rf)
+
+loge=glm(type~ npreg+bp+ped+bmi+glu, data = train, family = "binomial")
+summary(loge)
+
+mod = predict(loge, train)
+View(mod)
+
+pre=ifelse(mod>0.2, 1,0)
+table(pre)
+table(Actualvalue = train$type,Predictedvalue = pre)
+
+library(caret)
+confusionMatrix(table(train$type,pre))
+
+library(ROCR) 
+library(Metrics)
+pr <- prediction(mod,train$type)
+perf <- performance(pr,measure = "tpr",x.measure = "fpr") 
+plot(perf, colorize = T)#, print.cutoffs.at = seq(0.1, by=0.1))
+auc(train$type,mod) #0.8010509
