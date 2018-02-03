@@ -1,0 +1,22 @@
+# K Means Clustering on IRIS dataset
+data(iris)
+View(iris)
+ir=iris[1:4]
+ir_mat=data.matrix(ir)
+
+wss = (nrow(ir_mat)-1)*sum(apply(ir_mat,2,var))
+for (i in 2:15) wss[i]= sum(kmeans(ir_mat,centers = i)$withinss)
+plot(1:15 ,wss,type = "b", xlab = "Number of Clusters", ylab = "Within Sum od Squares")
+kmv<-kmeans(ir,3)
+names(kmv)
+kmv$centers#average value
+kmv$totss#total sum of squares
+kmv$withinss#within each cluster sum of square
+kmv$betweenss# totalsum of squares between the cluster
+kmv$cluster
+iris$cluster<-kmv$cluster
+View(iris)
+
+(nrow(ir_mat)-1)*sum(apply(ir_mat,2,var))
+table(iris$Species, kmv$cluster)
+plot(iris[c("Petal.Length","Petal.Width")], col = kmv$cluster)
