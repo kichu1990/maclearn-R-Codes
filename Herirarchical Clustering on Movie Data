@@ -1,0 +1,54 @@
+# Herirarchical Clustering on Movie Data
+library(reshape2)
+library(reshape)
+movie=read.table("data.txt",header=F,sep="|",quote = "\"")
+dim(movie)
+str(movie)
+View(movie)
+
+# To add column names
+colnames(movie)=c("ID","Title","ReleaseDate","VideoReleaseDate","IMDB","Unknown",
+                  "Action","Adventure","Animation","Children's","Comedy","Crime",
+                  "Documentary","Drama","Fantasy","FlimNoir","Horror","Musical",
+                  "Mystery","Romance","Scifi","Thriller","War","Western")
+
+# To remove unwanted columns Also subsetting can be done
+movie$ID=NULL
+movie$ReleaseDate=NULL
+movie$VideoReleaseDate=NULL
+movie$IMDB=NULL
+str(movie)
+View(movie)
+# To remove duplicates
+movie=unique(movie)
+dim(movie)
+
+# Find the distances between the movies
+dist=dist(movie[,-1],method="euclidean") # Finding the Euclidean distance between the points
+clusters=hclust(dist,method="ward.D") # ward.d tries to keep the variance of the clusters to a minimum
+plot(clusters,labels=movie$Title)
+plot(clusters)
+rect.hclust(clusters,k=10,border="red") # To plot rectangles around the cluster datapoints
+
+# To form Clusters
+movie.clusters=cutree(clusters,10)
+library(cluster)
+
+# To plot the Clusters
+clusplot(movie[,-1],movie.clusters,main="2D representation of the Cluster Solution",color=T,shade=T,labels=2,lines=0)
+table(movie.clusters)
+
+# To know the Percentage of Movies in each Cluster
+tapply(movie$Action,movie.clusters,mean)*100
+tapply(movie$Romance,movie.clusters,mean)*100
+tapply(movie$`Children's`,movie.clusters,mean)*100
+tapply(movie$Crime,movie.clusters,mean)*100
+
+# Add the Cluster column to the dataset
+movie$Clusters=movie.clusters
+str(movie)
+View(movie)
+
+# Export the Recommendations to a CSV file to an exxternal source
+recommendation=movie[,c("Title","Clusters")]
+write.csv(recommendation,"recommendation.csv",row.names=T)
