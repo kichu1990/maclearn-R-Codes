@@ -1,0 +1,40 @@
+str(quality)
+x=sum(quality$PoorCare==1)
+quality$PoorCare = as.character(quality$PoorCare)
+quality$PoorCare = as.factor(quality$PoorCare)
+qua=quality
+qua$PoorCare = as.character(qua$PoorCare)
+qua$PoorCare = as.factor(qua$PoorCare)
+qua=qua[-1]
+View(qua)
+summary(qua)
+
+library(caTools)
+set.seed(101)
+sample = sample.split(qua$PoorCare, SplitRatio = .70)
+train = subset(qua, sample == TRUE)
+test  = subset(qua, sample == FALSE)
+
+library(randomForest)
+bestmtry=tuneRF(qua, qua$PoorCare, stepFactor = 1.2, improve = 0.01, trace = T, plot = T)
+rf=randomForest(PoorCare~., data=qua, ntree = 500, nodesize = 5, mtry = 3 )
+rf
+varImpPlot(rf)
+
+mod1=glm(PoorCare~ OfficeVisits +  StartedOnCombination + AcuteDrugGapSmall, data = train, family = "binomial")
+summary(mod1)
+
+mod2=predict(mod1,train)
+
+View(train$PoorCare)
+nv=ifelse(mod2>0.2, 1,0)
+table(nv, train$PoorCare)
+View(mod2)
+View(nv)
+
+library(ROCR) 
+library(Metrics)
+pr <- prediction(mod2,train$PoorCare)
+perf <- performance(pr,measure = "tpr",x.measure = "fpr") 
+plot(perf)
+auc(train$PoorCare,mod2) #0.8010509
