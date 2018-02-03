@@ -1,0 +1,74 @@
+setwd("C:/Users/prajs1/Documents/R/Material")
+library(titanic)
+data<-titanic_train
+View(data)
+
+# To convert all the Blanks into NA's #
+data[data==""]=NA
+
+# To know the total NA's in each column  #
+colSums(is.na(data))
+
+# To know the Unique Values in the Dataset #
+sapply(data, function(x) length(unique(x)))
+
+# To create subset of the data #
+data.T<- na.omit(subset(data, select = c(2,3,5)))
+table(data.T)
+prop.table(table(data.T$Survived))
+prop.table(table(data.T$Pclass))
+prop.table(table(data.T$Sex))
+
+#To fill the missing value for age by getting the median
+data$Age[is.na(data$Age)]=median(data$Age,na.rm = T)
+
+#to populate missing value for Embarked
+data$Embarked[is.na(data$Embarked)]= 'S'
+View(data)
+#to find which row has missing value
+which(train$Embarked == ' ')
+
+# Create a New dataset after removing Unwaned columns #
+#1 4 9 11#
+Ndata<- subset(data, select = c(2,3,5,6,7,8,10,12))
+View(Ndata)
+summary(Ndata)
+
+# To know how the Dummy Variables will be created during the Data Modeling Part #
+library(dummies)
+is.factor(Ndata$Sex)
+contrasts(factor(Ndata$Sex))# shows how a factor will be converted to an Integer #
+levels(factor(Ndata$Pclass))
+levels(factor(Ndata$Embarked))
+contrasts(factor(Ndata$Embarked))
+
+# To check for Correlation between the Variables #
+data_indicator<- subset(Ndata, select = c(1:7))
+data_indicator$Sex= dummy(Ndata$Sex)
+View(data_indicator)
+x<-cor(data_indicator)
+library(corrplot)
+corrplot(x, type = 'lower', method = 'number')
+
+# Model Building #
+logreg<- glm(Survived~.-Parch - Fare -Embarked, data = Ndata, family = "binomial")
+summary(logreg)
+
+# Building a Confussion Matrix #
+res <-predict(logreg, Ndata, type = "response" )
+res
+table(ActualValue = Ndata$Survived, PredictedValue = res >0.5)
+accuracy = (459+243)/(459+243+99+90)
+
+# To Calculate the ROC Curve to come up with a threshold Value #
+library(ROCR)
+ROCPREDICT<-prediction(res, Ndata$Survived)
+ROCPOR<-performance(ROCPREDICT, "tpr", "fpr")
+plot(ROCPOR, colorize = "TRUE", print.cutoffs.at= seq(0,1,0.1), text.adj = c(-0.2, 1.7))
+
+# Building a Confussion Matrix with the new Threshold #
+res <-predict(model2, test, type = "response" )
+res
+table(ActualValue = Ndata$Survived, PredictedValue = res >0.4)
+accuracy = (406+280)/(406+280+62+143)
+accuracy
