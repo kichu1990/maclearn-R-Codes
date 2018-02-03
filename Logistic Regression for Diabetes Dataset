@@ -38,3 +38,19 @@ pr <- prediction(mod,train$type)
 perf <- performance(pr,measure = "tpr",x.measure = "fpr") 
 plot(perf, colorize = T)#, print.cutoffs.at = seq(0.1, by=0.1))
 auc(train$type,mod) #0.8010509
+
+##### Extra Information ##
+res <-predict(model2, test, type = "response" )
+res
+table(ActualValue = test$Outcome, PredictedValue = res >0.5)
+accuracy = (92+27)/(92+27+27+8)
+
+res1 <-predict(model2, train, type = "response" )
+ROCPREDICT<-prediction(res1, train$Outcome)
+ROCPOR<-performance(ROCPREDICT, "tpr", "fpr")
+plot(ROCPOR, colorize = "TRUE", print.cutoffs.at= seq(0,1,0.1), text.adj = c(-0.2, 1.7))
+res <-predict(model2, test, type = "response" )
+res
+table(ActualValue = test$Outcome, PredictedValue = res >0.3)
+accuracy = (40+77)/(77+14+23+40)
+accuracy
