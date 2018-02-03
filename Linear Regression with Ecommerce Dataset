@@ -1,0 +1,54 @@
+setwd("C:/Users/prajs1/Documents/R/Material")
+EC <-read.csv("C:/Users/prajs1/Documents/R/Material/Ecommerce Customers.csv")
+str(EC)
+summary(EC)
+View(EC)
+
+iris<-iris
+View(iris)
+E<-cor(iris[1:4])
+library(corrplot)
+corrplot(E, method = "square")
+
+###### SUBSETTING THE DATA ##############
+EC1<- EC[4:8]
+summary(EC1)
+cor(EC1)
+plot(EC$Time.on.Website,EC$Yearly.Amount.Spent)
+E<-cor(EC1)
+library(corrplot)
+corrplot(E, method = "square")
+
+library(GGally)
+ggpairs(EC1, aes(colour = Species, alpha = 0.4))
+
+library(lattice)
+plotmmatrix(EC1)
+
+plot(EC1$Length.of.Membership, EC1$Yearly.Amount.Spent)
+
+model = lm(Yearly.Amount.Spent ~ Avg..Session.Length + Time.on.App + Length.of.Membership , data = EC)
+summary(model)
+
+############ Splitting the data into TRAIN and TEST ###########
+dim(EC)
+#Creating Indexes
+indexes = sample(1:nrow(EC), size=0.2*nrow(EC))
+# Split data into train and test
+test = EC[indexes,]
+dim(test)  # 100 8
+train = EC[-indexes,]
+dim(train) # 400 8
+## Building the train Model ##
+str(train)
+ts = train[4:8]
+
+model = lm(Yearly.Amount.Spent ~ Avg..Session.Length + Time.on.App + Length.of.Membership , data = ts)
+summary(model)
+
+## Predict ##
+TS = test[4:8]
+summary(TS)
+predict = predict(model, newdata = TS)
+summary(predict)
+hist(model$residuals)
