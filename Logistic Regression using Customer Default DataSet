@@ -1,0 +1,92 @@
+setwd("C:/Users/prajs1/Documents/R/Material/Models Built/Logistic Regression")
+df = read.csv("Credit_Risk_Train_data.csv")
+fd = read.csv("Credit_Risk_Test_data.csv")
+str(df)
+summary(df)
+
+#Exploratory Data Analysis
+#Removing Unwanted Coulmns
+df = df[-1]
+View(df)
+summary(df)
+
+#Filling Blanks with NA
+df[df==""]=NA
+
+# Handling NA Values
+df$Gender        = as.character(df$Gender)
+df$Married       = as.character(df$Married)
+df$Dependents    = as.character(df$Dependents)
+df$Self_Employed = as.character(df$Self_Employed)
+
+df$Self_Employed[is.na(df$Self_Employed)] ='No'
+df$Married[is.na(df$Married)] = 'Yes'
+df$Dependents[is.na(df$Dependents)] = '0'
+df$Gender[is.na(df$Gender)] = 'Male'
+
+df$Gender        = as.factor(df$Gender)
+df$Married       = as.factor(df$Married)
+df$Dependents    = as.factor(df$Dependents)
+df$Self_Employed = as.factor(df$Self_Employed)
+
+summary(df)
+
+#Univariate Data Analysis
+library(ggplot2)
+ggplot(df,aes(LoanAmount)) + geom_histogram(binwidth = 1)
+
+# Handel Outliers
+boxplot(df$LoanAmount)
+bpv = df$LoanAmount
+bpc = sapply(bpv, function(x){ifelse(x>250, 168, x)} )
+boxplot(bpc)
+df$LoanAmount = bpc
+summary(df)
+
+# Fill the Missing Values
+df$LoanAmount[is.na(df$LoanAmount)] = median(df$LoanAmount, na.rm = T)
+summary(df)
+
+ggplot(df,aes(Loan_Amount_Term)) + geom_histogram(binwidth = 1)
+boxplot(df$Loan_Amount_Term)
+df$Loan_Amount_Term[is.na(df$Loan_Amount_Term)] = median(df$Loan_Amount_Term, na.rm = T)
+
+# Fill the Missing Values = Mode
+boxplot(df$Credit_History)
+df$Credit_History = as.factor(df$Credit_History)
+df$Credit_History[is.na(df$Credit_History)] = '0'
+
+# Convert the Yes and No in the Loan_Status to 0 and 1
+df$Loan_Status = as.character(df$Loan_Status)
+df$Loan_Status = ifelse(df$Loan_Status == 'Y', 1, 0)
+df$Loan_Status = as.factor(df$Loan_Status)
+summary(df)
+
+# RF to Identify Important Variables
+library(randomForest)
+bestmtry = tuneRF(df, df$Loan_Status, stepFactor = 1.2, improve = 0.01, trace = T , plot = T)
+rf<-randomForest(Loan_Status~.,data = df, ntree=500,nodesize=2,mtry=3)
+print(rf)
+varImpPlot(rf)
+
+# Logistic Regression Model Building
+logreg = glm(Loan_Status~ ApplicantIncome+Credit_History+LoanAmount+CoapplicantIncome+
+             Dependents+Property_Area+Loan_Amount_Term+Gender, data = df, family = "binomial")
+summary(logreg)
+
+logreg1 = glm(Loan_Status~ Credit_History+Property_Area, data = df, family = "binomial")
+summary(logreg1)
+
+res <-predict(logreg1, df, type = "response" )
+
+table(ActualValue = df$Loan_Status, PredictedValue = res >0.5)
+
+library(ROCR) 
+library(Metrics)
+pr <- prediction(res,df$Loan_Status)
+perf <- performance(pr,measure = "tpr",x.measure = "fpr") 
+plot(perf,colorize=T)
+auc(df$Loan_Status,res) #0.7475
+
+table(ActualValue = df$Loan_Status, PredictedValue = res >0.3)
+Build the Confusion Matrix to assertain the Model
