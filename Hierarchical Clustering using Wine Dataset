@@ -1,0 +1,31 @@
+setwd("C:/Users/prajs1/Documents/R/Material/Models Built/Clustering")
+data = read.csv("wine.csv")
+str(data)
+View(data)
+
+# To Calculate the distance between the data points
+distance=dist(data[,2:7], method = "euclidean")
+h.fit=hclust(distance, method = "ward.D")#ward.d tries minimize the varience of the cluster 
+plot(h.fit)
+
+# To form the Clusters
+data.cluster<-cutree(h.fit,3)
+data.cluster
+table(data$Price,data.cluster)
+table(data$HarvestRain,data.cluster)
+table(data$WinterRain,data.cluster)
+
+
+# To plot the Clusters
+library(cluster)
+clusplot(data[,-1],data.cluster,main="2D representation of the Cluster Solution",color=T,shade=T,labels=2,lines=0)
+
+# Add the Cluster column to the dataset
+data$cluster<-data.cluster
+
+tapply(data$Price,data$cluster,mean)
+tapply(data$WinterRain,data$cluster,mean)
+tapply(data$AGST,data$cluster,mean)
+tapply(data$HarvestRain,data$cluster,mean)
+tapply(data$Age,data$cluster,mean)
+tapply(data$FrancePop,data$cluster,mean)
