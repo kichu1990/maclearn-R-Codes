@@ -37,10 +37,7 @@ ggplot(df,aes(LoanAmount)) + geom_histogram(binwidth = 1)
 
 # Handel Outliers
 boxplot(df$LoanAmount)
-bpv = df$LoanAmount
-bpc = sapply(bpv, function(x){ifelse(x>250, 168, x)} )
-boxplot(bpc)
-df$LoanAmount = bpc
+df$LoanAmount = sapply(df$LoanAmount, function(x){ifelse(x>250, 168, x)})
 summary(df)
 
 # Fill the Missing Values
@@ -61,6 +58,42 @@ df$Loan_Status = as.character(df$Loan_Status)
 df$Loan_Status = ifelse(df$Loan_Status == 'Y', 1, 0)
 df$Loan_Status = as.factor(df$Loan_Status)
 summary(df)
+
+# Check the relation between the categorical variables
+
+table(emp$employ,emp$degree)
+chisq.test(table(emp$employ,emp$degree))
+chisq.test(table(emp$employ,emp$degree))$expected
+
+df$Gender
+df$Married
+df$Dependents
+df$Education
+df$Self_Employed
+df$Credit_History
+df$Property_Area
+df$Loan_Status
+
+table(df$Loan_Status,df$Gender)
+chisq.test(table(df$Loan_Status,df$Gender))
+
+table(df$Loan_Status,df$Married)
+chisq.test(table(df$Loan_Status,df$Married))
+
+table(df$Loan_Status,df$Dependents)
+chisq.test(table(df$Loan_Status,df$Dependents))
+
+table(df$Loan_Status,df$Education)
+chisq.test(table(df$Loan_Status,df$Education))
+
+table(df$Loan_Status,df$Self_Employed)
+chisq.test(table(df$Loan_Status,df$Self_Employed))
+
+table(df$Loan_Status,df$Credit_History)
+chisq.test(table(df$Loan_Status,df$Credit_History))
+
+table(df$Loan_Status,df$Property_Area)
+chisq.test(table(df$Loan_Status,df$Property_Area))
 
 # RF to Identify Important Variables
 library(randomForest)
@@ -88,5 +121,4 @@ perf <- performance(pr,measure = "tpr",x.measure = "fpr")
 plot(perf,colorize=T)
 auc(df$Loan_Status,res) #0.7475
 
-table(ActualValue = df$Loan_Status, PredictedValue = res >0.3)
-Build the Confusion Matrix to assertain the Model
+table(ActualValue = df$Loan_Status, PredictedValue = res >0.5)
