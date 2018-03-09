@@ -1,0 +1,43 @@
+setwd("C:/Users/prajs1/Documents/R/Material")
+BO = BoeingStock
+CC = CocaColaStock
+GE = GEStock
+IBM = IBMStock
+PG = ProcterGambleStock
+BO$Date = as.Date(BO$Date,"%m/%d/%y")
+CC$Date = as.Date(CC$Date,"%m/%d/%y")
+GE$Date = as.Date(GE$Date,"%m/%d/%y")
+IBM$Date = as.Date(IBM$Date,"%m/%d/%y")
+PG$Date = as.Date(PG$Date,"%m/%d/%y")
+
+str(BO)
+summary(BO)
+IBM$Date = as.Date(IBM$Date, "%m/%d/%y")
+IBM$Date = as.Date(IBM$Date, "%m/%d/%y")
+
+Date = as.integer(BO$Date)
+prods.all$Date2 <- mdy(prods.all$Date2)
+
+library(lubridate)
+BO$Date  = mdy(BO$Date)
+CC$Date  = mdy(CC$Date)
+GE$Date  = mdy(GE$Date)
+IBM$Date = mdy(IBM$Date)
+PG$Date  = mdy(PG$Date)
+View(BO)
+
+summary(IBM)
+summary(GE)
+summary(CC)
+summary(BO)
+summary(PG)
+sd(PG$StockPrice)
+plot(CC$Date, CC$StockPrice, type = 'l', col = 'blue')
+lines(PG$Date, PG$StockPrice, col = 'red')
+abline(v=as.Date(c("1983-03-01")), lwd=2)
+
+plot(CC$Date[301:432], CC$StockPrice[301:432], type="l", col="red", ylim=c(0,220))
+lines(IBM$Date[301:432], IBM$StockPrice[301:432], col = 'black')
+lines(GE$Date[301:432], GE$StockPrice[301:432], col = 'blue')
+lines(BO$Date[301:432], BO$StockPrice[301:432], col = 'orange')
+lines(PG$Date[301:432], PG$StockPrice[301:432], col = 'purple')
