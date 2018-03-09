@@ -1,0 +1,50 @@
+data = iris
+str(data)
+data = data[-5]
+summary(data)
+
+distance = dist(data, method = "euclidean")
+cluster = hclust(distance, method = "ward.D")
+plot(cluster)
+rect.hclust(cluster,k=3, border = "red")
+
+iris.cluster = cutree(cluster, 3)
+
+library(cluster)
+clusplot(data,iris.cluster,color = 'T', shade = 'T', labels = 2, lines = 0)
+
+data$Cluster= iris.cluster
+tapply(data$Sepal.Length, data$Cluster, mean)
+table(data$Cluster)
+table(iris$Species,iris.cluster)
+#############################################################################
+
+kmeans = kmeans(data, 4)
+names(kmeans)
+X = sum(kmeans$withinss)
+data = data.matrix(data)
+
+wss = c()
+for (i in 1:15) {
+  wss[i] = sum(kmeans(data, centers = i)$withinss)
+}
+
+plot(1:15,wss,type = 'b')
+#############################################################################
+data = mtcars
+View(data)
+distance = dist(data, method = 'euclidean')
+cluster = hclust(distance, method = 'ward.D')
+plot(cluster)
+rect.hclust(cluster,k=5, border = "red")
+
+mtcars.cluster = cutree(cluster, 5)
+clusplot(data,mtcars.cluster,color = 'T', shade = 'T',labels = 2, lines = 0)
+
+data = data.matrix(data)
+wss = c()
+for (i in 1:15) {
+  wss[i] = sum(kmeans(data, centers = i)$withinss)
+}
+
+plot(1:15,wss,type = 'b')
