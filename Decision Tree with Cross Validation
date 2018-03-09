@@ -1,0 +1,71 @@
+setwd("C:/Users/prajs1/Documents/R/Material")
+library(MASS)
+data("Boston")
+colnames(Boston)
+
+str(Boston)
+summary(Boston)
+Boston$LH = ifelse(Boston$medv< median(Boston$medv),1,0)
+Boston$LH = as.character(Boston$LH)
+Boston$LH = as.factor(Boston$LH)
+
+##Split the data into Train and Test##
+library(caTools)
+set.seed(2)
+split<-sample.split(Boston$LH, SplitRatio = 0.70)
+train  <- subset(Boston, split == 'TRUE')
+test <- subset(Boston, split == 'FALSE')
+View(train)
+View(test)
+
+#####################################################################################
+library(rpart)
+library(rpart.plot)
+
+tree<-rpart(medv~.,data=train, minbucket = 100, method="class")
+tree<-rpart(medv~.,data=Boston, minbucket = 5, maxdepth = 5)
+prp(tree)
+
+tree<-rpart(LH~.-medv,data=train, cp = 0.02)
+prp(tree)
+
+pred = predict(tree, data = "train", type = 'class')
+table(train$LH, pred)
+library(caret)
+confusionMatrix(table(train$LH, pred))
+
+confusionMatrix(table(train$LH, pred))[[3]][1]
+
+accuracy = (161+164)/(161+164+12+17)
+
+#####################################################################################
+
+library(caret)
+confusionMatrix(table(train$LH, pr))[[3]][1]
+a = 161/(161+17)
+
+accuracy = c()
+for (i in seq(0.01,0.5,0.01)){
+  tree<-rpart(LH~.-medv,data=train, cp = i)
+  pred = predict(tree, data = "train", type = 'class')
+  acc = confusionMatrix(table(train$LH, pred))[[3]][1]
+  accuracy = c(accuracy,acc)
+}
+cp = seq(0.01,0.5,0.01)
+plot(cp,accuracy)
+hist(accuracy)
+
+#####################################################################################
+
+library(e1071)
+numFolds = trainControl(method = "cv", number = 5)
+cpGrid = expand.grid(.cp=seq(0.01,0.5,0.01))
+train(LH~.-medv,data=train, method = 'rpart',trControl = numFolds, tuneGrid = cpGrid)
+
+tree<-rpart(LH~.-medv,data=train, cp = 0.01)
+prp(tree)
+
+pred = predict(tree, data = "train", type = 'class')
+table(train$LH, pred)
+library(caret)
+confusionMatrix(table(train$LH, pred))
