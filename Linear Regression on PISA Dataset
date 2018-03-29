@@ -1,0 +1,158 @@
+setwd("C:/Users/prajs1/Documents/R/Material")
+train= read.csv("C:/Users/prajs1/Documents/R/Material/PISA/pisa2009train.csv")
+str(train)
+summary(train)
+View(train)
+
+## Identify the Important Variables Using Random Forest##
+library(randomForest)
+bestmtry = tuneRF(train, train$readingScore, stepFactor = 1.2, improve = 0.01, trace = T , plot = T)
+rf<-randomForest(readingScore~., data = train, ntree=500,nodesize=10,mtry= 15)
+print(rf)
+hist(rf$importance)
+
+library(ggplot2)
+ggplot(train,aes(raceeth)) + geom_histogram(binwidth = 1)
+
+sapply(train, function(x) length(unique(x)))
+
+train$male = as.character(train$male)
+train$raceeth = as.character(train$raceeth)
+train$preschool = as.character(train$preschool)
+train$expectBachelors = as.character(train$expectBachelors)
+train$motherHS = as.character(train$motherHS)
+train$motherBachelors = as.character(train$motherBachelors)
+train$motherWork = as.character(train$motherWork)
+train$fatherHS = as.character(train$fatherHS)
+train$fatherBachelors = as.character(train$fatherBachelors)
+train$fatherWork = as.character(train$fatherWork)
+train$selfBornUS = as.character(train$selfBornUS)
+train$motherBornUS = as.character(train$motherBornUS)
+train$fatherBornUS = as.character(train$fatherBornUS)
+train$englishAtHome = as.character(train$englishAtHome)
+train$computerForSchoolwork = as.character(train$computerForSchoolwork)
+train$read30MinsADay = as.character(train$read30MinsADay)
+train$schoolHasLibrary = as.character(train$schoolHasLibrary)
+train$publicSchool = as.character(train$publicSchool)
+train$urban = as.character(train$urban)
+
+train$male = as.factor(train$male)
+train$raceeth = as.factor(train$raceeth)
+train$preschool = as.factor(train$preschool)
+train$expectBachelors = as.factor(train$expectBachelors)
+train$motherHS = as.factor(train$motherHS)
+train$motherBachelors = as.factor(train$motherBachelors)
+train$motherWork = as.factor(train$motherWork)
+train$fatherHS = as.factor(train$fatherHS)
+train$fatherBachelors = as.factor(train$fatherBachelors)
+train$fatherWork = as.factor(train$fatherWork)
+train$selfBornUS = as.factor(train$selfBornUS)
+train$motherBornUS = as.factor(train$motherBornUS)
+train$fatherBornUS = as.factor(train$fatherBornUS)
+train$englishAtHome = as.factor(train$englishAtHome)
+train$computerForSchoolwork = as.factor(train$computerForSchoolwork)
+train$read30MinsADay = as.factor(train$read30MinsADay)
+train$schoolHasLibrary = as.factor(train$schoolHasLibrary)
+train$publicSchool = as.factor(train$publicSchool)
+train$urban = as.factor(train$urban)
+
+ggplot(train,aes(minutesPerWeekEnglish)) + geom_histogram(binwidth = 1)
+ggplot(train,aes(studentsInEnglish)) + geom_histogram(binwidth = 1)
+ggplot(train,aes(schoolSize)) + geom_histogram(binwidth = 1)
+
+hist(train$minutesPerWeekEnglish)
+train$minutesPerWeekEnglish[is.na(train$minutesPerWeekEnglish)] = median(train$minutesPerWeekEnglish, na.rm = T)
+hist(train$minutesPerWeekEnglish)
+boxplot(train$minutesPerWeekEnglish)
+
+hist(train$studentsInEnglish, breaks = 1000)
+boxplot(train$studentsInEnglish)
+train$studentsInEnglish[is.na(train$studentsInEnglish)] = mean(train$studentsInEnglish, na.rm = T)
+
+hist(train$schoolSize)
+
+train$minutesPerWeekEnglish[is.na(train$minutesPerWeekEnglish)] = median(train$minutesPerWeekEnglish, na.rm = T)
+train$studentsInEnglish[is.na(train$studentsInEnglish)] = mean(train$studentsInEnglish, na.rm = T)
+train$schoolSize[is.na(train$schoolSize)] = median(train$schoolSize, na.rm = T)
+
+boxplot(train$schoolSize)
+train$schoolSize[is.na(train$schoolSize)] = median(train$schoolSize, na.rm = T)
+
+table(train$studentsInEnglish) > 40
+
+View(train)
+readingScore
+
+train$raceeth[is.na(train$raceeth)]= 'White'
+train$preschool[is.na(train$preschool)] ='1'
+train$expectBachelors[is.na(train$expectBachelors)]='1'
+train$motherHS[is.na(train$motherHS)]='1'
+train$motherBachelors[is.na(train$motherBachelors)]='0'
+train$motherWork[is.na(train$motherWork)]='1'
+train$fatherHS[is.na(train$fatherHS)]='1'
+train$fatherBachelors[is.na(train$fatherBachelors)]='0'
+train$fatherWork[is.na(train$fatherWork)]='1'
+train$selfBornUS[is.na(train$selfBornUS)]='1'
+train$motherBornUS[is.na(train$motherBornUS)]='1'
+train$fatherBornUS[is.na(train$fatherBornUS)]='1'
+train$englishAtHome[is.na(train$englishAtHome)]='1'
+train$computerForSchoolwork[is.na(train$computerForSchoolwork)]='1'
+train$read30MinsADay[is.na(train$read30MinsADay)]='0'
+train$schoolHasLibrary[is.na(train$schoolHasLibrary)]='1'
+
+si = train$studentsInEnglish
+View(si)
+View(sie1)
+
+hist(si)
+boxplot(si)
+
+hist(sie1)
+boxplot(sie1)
+
+hist(sie2)
+boxplot(sie2)
+
+sie1 = sapply(si, function(x){ifelse (x > 45, 45, x)})
+sie2 = sapply(sie1, function(x){ifelse (x < 5, 10, x)})
+
+train$studentsInEnglish = sie2
+summary(train)
+
+train$raceeth = relevel(train$raceeth, "White")
+
+
+linreg = lm(readingScore~ grade +male+raceeth+preschool+expectBachelors+motherHS+motherBachelors+
+              fatherBachelors+motherBornUS+englishAtHome+computerForSchoolwork+
+              read30MinsADay+minutesPerWeekEnglish+publicSchool+urban+schoolSize,
+            data = train)
+summary(linreg)
+
+model1 = lm(readingScore~ schoolSize + raceeth + expectBachelors + minutesPerWeekEnglish +
+              studentsInEnglish + grade + read30MinsADay + fatherBachelors + 
+              motherBachelors + male, data = train)
+summary(model1)
+
+
+test = read.csv("C:/Users/prajs1/Documents/R/Material/PISA/pisa2009test.csv")
+test$raceeth = relevel(test$raceeth, "White")
+model2 = predict(model1, train)
+
+model3 = predict(model1, test)
+
+#To Plot a graph of actual Value and the Predicted Value#
+plot(train$readingScore, type = "l", col = "green")
+lines(aprediction,type = "l", col = "blue")
+
+##Error Calculations##
+mape<- (sum(abs(train$medv - pred_tr)/train$medv))/length(train$medv)*100
+mape
+
+mape1<- (sum(abs(test$medv - pred_te)/test$medv))/length(test$medv)*100
+mape1
+
+mape = (sum(abs(train$readingScore - model2)/train$readingScore))/length(train$readingScore)*100
+mape
+
+mape1 = (sum(abs(test$readingScore - model3)/test$readingScore))/length(test$readingScore)*100
+mape1
