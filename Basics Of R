@@ -1,0 +1,204 @@
+######### Vectors In R #############
+# integer
+a = c(1,2,3)
+class(a)
+
+# character
+b = c('zero', 'to','hero')
+class(b)
+
+# Mix - COnverts lower data type to Higher Data type
+c = c(1,2,3,4,5,6,'zero','hero','NA')
+class(c)
+
+# Indexing in R
+a[1]
+b[1]
+c[8]
+c[c(3:8)]
+
+# Subsetting a vector
+d = c[c(3:8)]
+c[c>2]
+a[a>1] # will give the index of the variable
+c>2 # Boolian output
+
+########################################################
+
+######## Matrix in R ########
+x = matrix(1:10,nrow = 2, byrow = 'T')
+x = matrix(1:10,nrow = 3, byrow = 'F')
+x = matrix(1:10,nrow = 5, byrow = 'T')
+x = matrix(1:10,nrow = 6, byrow = 'F') # the numbers will get repeated
+## Indexing a Matrix ##
+x[2,1]
+x[2,1:5]
+x[1:2,1:3]
+x[,2:4] ## columns 2,3,4 of both the rows
+x[1,] ## all columns of row 1
+colnames(x) = c('A','B','C','D','E') ## adding column names to the matrix
+x[1,'B']
+x[1,'D'] # after adding Coll Names we cannot address sequence of Index
+
+########################################################
+######## List in R #######
+
+d = list(a,b)# creating a List
+e = list(c(1:10),c('Bangalore','HASSAN','New York') )
+d[[1]][2] # indexing a list
+d[[2]][1]
+e[[1]][9]
+e[[2]][3]
+
+##### Data Frames in R ####
+Country = c('India','US','China')
+gdp = c('70','90','65')
+population = c('130','80','90')
+
+data1 = data.frame(Country,gdp,population)
+
+Country = c('Canada','Russia','Japan')
+gdp = c('50','80','95')
+population = c('105','150','70')
+
+data2 = data.frame(Country,gdp,population)
+
+# The Column names in both the data frames should be same otherwise we will get error
+data = rbind(data1,data2)
+
+Ranking = c(1,2,3,4,5,6)
+
+data = cbind(data, Ranking)
+
+data[data$Country == 'India',]
+data[data$Ranking > 2 ,]
+data[data$Ranking <= 2 ,]
+
+dat = data
+dat$gdp = as.character(dat$gdp)
+dat$gdp = as.integer(dat$gdp)
+dat$population = as.character(dat$population)
+dat$population = as.integer(dat$population)
+summary(dat)
+str(dat)
+data[data$gdp == '80',]
+dat[dat$population > 90,]
+
+##################################################################
+empid = c(217914,246574,345678,794562,745678, 845675,357946)
+empname = c('Prajwal','Mark','Jack','Alan','Douglas','John','Alex')
+empsal = c('575000','775000','800000','750000','750000','954000','880000')
+department = c(10,20,20,10,10,30,10)
+
+emp = data.frame(empid,empname,empsal,department)
+
+empid = c(217914,246574,345678,794562,745678, 845675,357946)
+empname = c('Prajwal','Mark','Jack','Alan','Douglas','Declan','Marian')
+empadd = c('India','US','Mexico','Irland','Irland','Irland','Irland')
+
+empadd = data.frame(empname,empadd)
+
+## Inner Join Only matching records
+merge(x=emp,y=empadd,by.x = 'empname',by.y = 'empname')
+
+## right join
+merge(x=emp,y=empadd,by.x = 'empname',by.y = 'empname', all.x = 'T')
+
+## left join
+merge(x=emp,y=empadd,by.x = 'empname',by.y = 'empname', all.y = 'T')
+
+## Full outer Join
+merge(x=emp,y=empadd,by.x = 'empname',by.y = 'empname', all.y = 'T', all.x = 'T')
+
+############### ASSIGNMENT #######################
+#1--Create a vector of the values of (e^X)sin(x) at x=3,3.1,3.2,6
+exp(1)# this represents e 
+x=c(3,3.1,3.2,6)
+exp(1)^(x)*sin(x)
+
+#2--Execute the following lines which create two vectors of random integers
+#which are chosen with replacement from the integers 0, 1, : : : ,999. 
+#Both vectors have length 250
+set.seed(100) # what is this??? think!!
+x = sample (0:999, 250, replace=T) 
+y = sample (0:999, 250, replace=T) 
+
+#(a) Identify out the values in y which are > 500
+y>500 # gives a boolean output
+y[y>500]
+
+#(b) Identify the index positions in y of the values which are > 700? 
+which(y>700) # returns the Index as output
+y[which(y>700)]
+
+#(c) What are the values in x which are in same index position to the values in y which are > 400?  
+#indexes which have >400 in x
+which(x>400)
+#indexes which have >400 in y
+which(y>400)
+#common indexes between the two-
+#which(x>400) %in% which(y>400) but we want the values in x corresponding to common index
+#So
+x[which(x>400) %in% which(y>400)] #this was a advanced quesio for Week2 as %in% is covered in W3
+
+
+#(d) How many numbers in x are divisible by 2? 
+sum(x%%2==0)
+
+#(e) Sort the numbers in the vector x in the order of increasing values in y. 
+#Ignore this question..this is not required.
+
+
+#(f) create the following vector-
+#("Label 1", "Label 2", ....., "Label 30")
+#*Note that there is a single space between label and the number
+x=1:30
+paste("Label",x) #default sep isa space
+
+
+#(g)Generate the following matrix
+#it should have 5 rows and 4 cols #------------->>>it shud be 4 rows..(eror in question)
+# values in r1- 1to 5, r2- 101 to 105, r3-201-205 , r4-301-305
+r1=1:5
+r2=101:105
+r3=201:205
+r4=301:305
+ans=matrix(c(r1,r2,r3,r4),nrow=4,byrow=T)
+print(ans)
+
+#(3)Create a 6 by 10 matrix of random integers chosen from
+#1 to 10 by executing the following two lines of code: 
+set.seed(100) 
+GMAT=matrix(sample(10, size=60, replace=T), nr=6) 
+
+#(a) Find the number of entries in each row which are greater than 4. 
+rowSums(apply(GMAT,2,function(x){x>4})) #will cover this in Day7
+
+#(b) Which rows contain exactly two occurrences of the number seven?
+x=rowSums(apply(GMAT,2,function(x){x==7})) #will cover this in Day7
+which(x==2)
+
+#(c) Find those pairs of columns whose total (over both columns) is >= 50. 
+#The answer should be a matrix with two columns. 
+x=colSums(GMAT) #gives sum of each column..
+result=c()
+for(i in 1:10){
+  for (j in 1:10){
+    if (i!=j & i<=j){
+      sum=x[i]+x[j]
+      if(sum>50){result=c(result,i,j)}
+    }
+  }
+}
+answer=matrix(result,ncol=2,byrow=T)
+print(answer)#to verify check this ona smaller matrix
+
+#(4)generate 10000 random numbers from a Uniform distribution between the values 100 and 200.
+#plot a histogram for them. How shud the histogram look like??
+x=runif(10000)*100+100 #this is pure maths....
+hist(x)
+
+#(5)generate 10000 random numbers from a Normal distribution with mean 1000 and sd=50.
+#plot a histogram for them. How shud the histogram look like??
+x=rnorm(10000,1000,50)
+hist(x)
