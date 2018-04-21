@@ -1,0 +1,220 @@
+setwd("E:/R & Python Documents/R Machine Learning/Models Built/Logistic Regression")
+
+# Read the data from Source
+cr_train = read.csv("Credit_Risk_Train_data.csv")
+cr_test = read.csv("Credit_Risk_Test_data.csv")
+
+# Convert the Colunm in the Test data to have the same column name and remove the old column
+cr_test$Loan_Status = cr_test$outcome
+View(cr_train1)
+View(cr_test1)
+cr_test = cr_test[-13]
+
+#Combine the train and test to do a EDA
+df_all=rbind(cr_train,cr_test)
+View(df_all)
+
+str(df_all)
+summary(df_all)
+
+#convert the Loan Status column from character to factor i.e. Numeric
+df_all$Loan_Status = sapply(df_all$Loan_Status, function(x){ifelse (x == "Y",1,0)})
+View(df_all)
+
+df_all$Loan_Status = as.character(df_all$Loan_Status)
+df_all$Loan_Status = as.factor(df_all$Loan_Status)
+summary(df_all)
+
+# Handle the Missing values 
+df_all$Gender = as.character(df_all$Gender)
+df_all$Gender[df_all$Gender==""] = "NA"
+df_all$Gender = as.factor(df_all$Gender)
+df_all$Gender[df_all$Gender=="NA"] = "Male"
+df_all$Gender[is.na(df_all$Gender)] = "Male"
+summary(df_all)
+
+df_all$Married = as.character(df_all$Married)
+df_all$Married[df_all$Married == ""] = "NA"
+df_all$Married = as.factor(df_all$Married)
+df_all$Married[df_all$Married == "NA"] = "Yes"
+df_all$Married[is.na(df_all$Married)] = "Yes"
+summary(df_all)
+
+df_all$Dependents = as.character(df_all$Dependents)
+df_all$Dependents = as.factor(df_all$Dependents)
+df_all$Dependents[df_all$Dependents == ""] = "NA"
+df_all$Dependents[is.na(df_all$Dependents)] = "0"
+summary(df_all)
+
+df_all$Self_Employed = as.character(df_all$Self_Employed)
+df_all$Self_Employed[df_all$Self_Employed==""]= "NA"
+df_all$Self_Employed = as.factor(df_all$Self_Employed)
+df_all$Self_Employed[is.na(df_all$Self_Employed)] = "No"
+df_all$Self_Employed[df_all$Self_Employed == "NA"] = "No"
+summary(df_all)
+
+df_all$Credit_History = as.character(df_all$Credit_History)
+df_all$Credit_History[is.na(df_all$Credit_History)] = "1"
+df_all$Credit_History = as.factor(df_all$Credit_History)
+
+df_all$LoanAmount[is.na(df_all$LoanAmount)]=median(df_all$LoanAmount,na.rm=T)
+df_all$Loan_Amount_Term[is.na(df_all$Loan_Amount_Term)]=median(df_all$Loan_Amount_Term,na.rm=T)
+df_all$Credit_History = as.factor(df_all$Credit_History)
+summary(df_all)
+
+#Univariate Analysis
+hist(df_all$ApplicantIncome)
+hist(df_all$CoapplicantIncome)
+hist(df_all$LoanAmount)
+hist(df_all$Loan_Amount_Term)
+
+#Handling Outliers in Data
+boxplot(df_all$LoanAmount)
+Q1_LoanAmount=quantile(df_all$LoanAmount,0.25)
+Q2_LoanAmount=quantile(df_all$LoanAmount,0.50)
+Q3_LoanAmount=quantile(df_all$LoanAmount,0.75)
+IQR_LoanAmount=Q3_LoanAmount-Q1_LoanAmount
+UW = Q3_LoanAmount+(1.5*IQR_LoanAmount)
+LW = Q1_LoanAmount-(1.5*IQR_LoanAmount)
+
+df_all$LoanAmount=sapply(df_all$LoanAmount,function(x){ ifelse(x>248.5,248.5,x)})
+df_all$LoanAmount=sapply(df_all$LoanAmount,function(x){ ifelse(x<12.5,12.5,x)})
+
+boxplot(df_all$ApplicantIncome)
+Q1_ApplicantIncome=quantile(df_all$ApplicantIncome,0.25)
+Q2_ApplicantIncome=quantile(df_all$ApplicantIncome,0.50)
+Q3_ApplicantIncome=quantile(df_all$ApplicantIncome,0.75)
+IQR_ApplicantIncome=Q3_ApplicantIncome-Q1_ApplicantIncome
+UW = Q3_ApplicantIncome+(1.5*IQR_ApplicantIncome)
+LW = Q1_ApplicantIncome-(1.5*IQR_ApplicantIncome)
+
+df_all$ApplicantIncome=sapply(df_all$ApplicantIncome,function(x){ ifelse(x>9477.5,9477.5,x)})
+
+boxplot(df_all$CoapplicantIncome)
+Q1_CoapplicantIncome=quantile(df_all$CoapplicantIncome,0.25)
+Q2_CoapplicantIncome=quantile(df_all$CoapplicantIncome,0.50)
+Q3_CoapplicantIncome=quantile(df_all$CoapplicantIncome,0.75)
+IQR_CoapplicantIncome=Q3_CoapplicantIncome-Q1_CoapplicantIncome
+UW = Q3_CoapplicantIncome+(1.5*IQR_CoapplicantIncome)
+
+df_all$CoapplicantIncome=sapply(df_all$CoapplicantIncome,function(x){ ifelse(x>5912.5,5912.5,x)})
+
+#split back in the same ratoi as train & test
+cr_test=tail(df_all,nrow(cr_test))
+cr_train=head(df_all,nrow(cr_train))
+
+summary(cr_train)
+str(cr_train)
+
+# Check the relation between the categorical variables
+table(cr_train$Loan_Status,cr_train$Gender)
+chisq.test(table(cr_train$Loan_Status,cr_train$Gender))
+
+table(cr_train$Loan_Status,cr_train$Married)
+chisq.test(table(cr_train$Loan_Status,cr_train$Married))
+
+table(df$Loan_Status,df$Dependents)
+chisq.test(table(df$Loan_Status,df$Dependents))
+
+table(cr_train$Loan_Status,cr_train$Education)
+chisq.test(table(cr_train$Loan_Status,cr_train$Education))
+
+table(cr_train$Loan_Status,cr_train$Self_Employed)
+chisq.test(table(cr_train$Loan_Status,cr_train$Self_Employed))
+
+table(cr_train$Loan_Status,cr_train$Credit_History)
+chisq.test(table(cr_train$Loan_Status,cr_train$Credit_History))
+
+table(cr_train$Loan_Status,cr_train$Property_Area)
+chisq.test(table(cr_train$Loan_Status,cr_train$Property_Area))
+
+table(cr_train$Loan_Status,cr_train$Dependents)
+chisq.test(table(cr_train$Loan_Status,cr_train$Dependents))
+
+df = cr_train[-1]
+View(df)
+dft = cr_test[-1]
+
+# RF to Identify Important Variables
+library(randomForest)
+bestmtry = tuneRF(df, df$Loan_Status, stepFactor = 1.2, improve = 0.01, trace = T , plot = T)
+rf<-randomForest(Loan_Status~.,data = df, ntree=500,nodesize=2,mtry=3)
+print(rf)
+varImpPlot(rf)
+
+# Logistic Regression Model Building
+logreg = glm(Loan_Status~ ApplicantIncome+Credit_History+LoanAmount+CoapplicantIncome+
+               Dependents+Property_Area+Loan_Amount_Term+Gender, data = df, family = "binomial")
+summary(logreg)
+
+logreg1 = glm(Loan_Status~ Credit_History+Property_Area, data = df, family = "binomial")
+summary(logreg1)
+
+res <-predict(logreg, df, type = "response" )
+table(res)
+result = ifelse(res > 0.5, 1, 0)
+table(result)
+table(ActualValue = dft$Loan_Status, PredictedValue = res >0.5)
+
+library(ROCR) 
+library(Metrics)
+pr <- prediction(res,dft$Loan_Status)
+perf <- performance(pr,measure = "tpr",x.measure = "fpr") 
+plot(perf,colorize=T)
+auc(dft$Loan_Status,res) #0.7475
+
+reps = ifelse(res > 0.05,1,0)
+table(ActualValue = df$Loan_Status, PredictedValue = res >0.5)
+
+library(caret)
+confusionMatrix(table(df$Loan_Status,result))
+
+logreg = glm(Loan_Status~ Credit_History+LoanAmount+
+               Property_Area, data = df, family = "binomial")
+summary(logreg)
+---------------------------------------------------------------------------------------------------------
+##Identify and eliminate Multicollinearity ##
+Model_1=glm(Loan_Status~.,data=df,family = 'binomial')
+summary(Model_1)
+#AIC 587.72
+
+log_pre = predict(Model_1, df, type = "response")
+
+library(ROCR) 
+library(Metrics)
+pr <- prediction(res,df$Loan_Status)
+perf <- performance(pr,measure = "tpr",x.measure = "fpr") 
+plot(perf,colorize=T)
+auc(df$Loan_Status,res) #0.7475
+
+response = ifelse(log_pre > 0.4, 1,0)
+
+library(caret)
+confusionMatrix(table(df$Loan_Status, response))
+
+# Stepwise Algorithm to identify Important variables using AIC 
+step(Model_1)
+Model_2=glm(Loan_Status ~ Married + Education + LoanAmount + Credit_History + Property_Area, 
+            data = df,family = 'binomial')
+summary(Model_2)
+#AIC: 576.48
+
+# Validating the model on Training Data
+response_2 = predict(Model_2,df, type = 'response')
+
+# Validating the model on Testing Data
+resp_test = predict(Model_2,dft, type = 'response')
+
+# Finding the threshold using ROC curve
+library(ROCR) 
+library(Metrics)
+pr <- prediction(resp_test,dft$Loan_Status)
+perf <- performance(pr,measure = "tpr",x.measure = "fpr") 
+plot(perf,colorize=T)
+auc(dft$Loan_Status,resp_test) #0.7695
+resp = ifelse (resp_test > 0.2,1,0)
+table(dft$Loan_Status,resp)
+
+#Building the Confusion Matrix to validate the model
+library(caret)
+confusionMatrix(table(dft$Loan_Status, resp))
