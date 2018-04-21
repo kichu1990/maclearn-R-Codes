@@ -1,0 +1,36 @@
+# Decisiion tree using Diabetes Dataset
+df = diabetes
+
+##Split the data into Train and Test##
+library(caTools)
+set.seed(2)
+split<-sample.split(df$type, SplitRatio = 0.70)
+train  <- subset(df, split == 'TRUE')
+test <- subset(df, split == 'FALSE')
+View(train)
+View(test)
+
+## 5 Fold Cross Validation to obtain the optimum value of CP
+library(e1071)
+numFolds = trainControl(method = "cv", number = 5)
+cpGrid = expand.grid(.cp=seq(0.01,0.5,0.01))
+train(type~.,data=train, method = 'rpart',trControl = numFolds, tuneGrid = cpGrid)
+
+# Building a Decision Tree Model
+library(rpart)
+library(rpart.plot)
+tree<-rpart(type~.,data=train, cp = 0.02)
+prp(tree)
+
+# Validating the accuracy of the model on the Training data
+pred = predict(tree, train)
+pr = ifelse(pred> 0.3,1,0)
+table(train$type, pr)
+
+library(caret)
+confusionMatrix(table(train$type, pr))
+
+# Validating the accuracy of the model on the Testing data
+pred_test = predict(tree,test)
+pr1 = ifelse(pred_test>0.3,1,0)
+confusionMatrix(table(test$type, pr1))
