@@ -1,0 +1,39 @@
+setwd("C:/Users/prajs1/Documents/R/Material")
+library(MASS)
+data("Boston")
+colnames(Boston)
+
+str(Boston)
+summary(Boston)
+Boston$LH = ifelse(Boston$medv< median(Boston$medv),1,0)
+Boston$LH = as.character(Boston$LH)
+Boston$LH = as.factor(Boston$LH)
+
+##Split the data into Train and Test##
+library(caTools)
+set.seed(2)
+split<-sample.split(Boston$medv, SplitRatio = 0.70)
+train  <- subset(Boston, split == 'TRUE')
+test <- subset(Boston, split == 'FALSE')
+View(train)
+View(test)
+
+## 5 Fold Cross Validation to obtain the optimum value of CP
+library(e1071)
+numFolds = trainControl(method = "cv", number = 5)
+cpGrid = expand.grid(.cp=seq(0.01,0.5,0.01))
+train(medv~.,data=train, method = 'rpart',trControl = numFolds, tuneGrid = cpGrid)
+
+# Building a Decision Tree Model using optimum value of CP
+tree<-rpart(medv~.,data=train, cp = 0.01)
+prp(tree)
+
+# Validating the Model using the Training data
+pred = predict(tree, data = "train")
+plot(train$medv, type = "l",lty = 1.5,col = "green")
+lines(pred,type = "l",col = "blue")
+
+# Validating the model using the Testing Data
+pred1=predict(tree, test)
+plot(test$medv, type = "l",lty = 1.5,col = "green")
+lines(pred1,type = "l",col = "blue")
